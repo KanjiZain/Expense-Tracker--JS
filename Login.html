@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="LogStyle.css">
+    <link rel="shortcut icon" type="image/jpg" href="https://cdn.iconscout.com/icon/premium/png-256-thumb/expense-tracker-app-4203120-3509061.png"/>
+    <script src="app.js"></script>
+
+    
+</head>
+<body>
+
+<div class="login">
+  <div class="login-connect">
+    <div id="login-title">Login</div>
+  </div>
+  <div class="login-classic">
+    <div id="form-title">Welcome</div>
+    <form class="form">
+      <fieldset class="email">
+        <input type="email" placeholder="Email" name="Email" id="Emaili" />
+      </fieldset>
+      <fieldset class="password">
+        <input type="password" placeholder="Password" name="Password" id="Passwordi" />
+      </fieldset>
+      </form>
+      <button type="submit" class="btn" id="login">Login</button>
+      <br>
+      <div class="alert" id="alert"></div>
+      <hr>
+      <span>Already Registerd? <a href="index.html"><u>Sign up</u></a></span>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-analytics.js";
+  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
+  import { getFirestore,addDoc, collection,doc,getDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
+
+  
+  const firebaseConfig = {
+    apiKey: "AIzaSyAo0FGzNytdWQ0RRq6eUeogVHDO2ejByS8",
+    authDomain: "egpro-9bb13.firebaseapp.com",
+    projectId: "egpro-9bb13",
+    storageBucket: "egpro-9bb13.appspot.com",
+    messagingSenderId: "330781414809",
+    appId: "1:330781414809:web:47e8d1ab035a04e2e5af08",
+    measurementId: "G-MGXQYBY2V4"
+  };
+
+  
+
+  const createuser = async function(user) {
+    
+    const docRef = doc(db, "users", user.uid);
+    const docSnap = await getDoc(docRef);
+  
+  if (docSnap.exists()) {
+    await localStorage.setItem('userData',JSON.stringify(docSnap.data()))
+    
+  } else {
+    // doc.data() will be undefined in this case
+    console.log("No such document!");
+  }
+
+
+  }
+
+
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const auth = getAuth(app)
+  const db = getFirestore(app);
+
+
+
+   document.getElementById('login').addEventListener('click',function() {
+          
+            const email = document.getElementById('Emaili').value
+            const password = document.getElementById('Passwordi').value
+       
+
+            if(email === '' || password==='') {
+              showAlertLogin('Please fill in all fields');
+            
+            }
+
+            else {
+              signInWithEmailAndPassword(auth, email, password)
+              .then((userCredential) => {
+                const user = userCredential.user;
+
+                createuser(user)
+                
+ 
+              setTimeout(function() {
+                document.getElementById('Emaili').value = ''
+                document.getElementById('Passwordi').value = ''
+                location.replace('Home.html')
+  
+            }, 3000);
+           
+              
+            })
+            .catch((error) => {
+              const errorCode = error.code;  
+              const errorMessage = error.message;
+              console.log(errorMessage)
+              showAlertLogin(errorMessage);
+            });
+            }
+        })
+      
+
+
+</script>
+
+</body>
+</html>
