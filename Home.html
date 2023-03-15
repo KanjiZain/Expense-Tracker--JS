@@ -275,6 +275,22 @@
   addEventListener("DOMContentLoaded", async () => {
     myFunction();
 
+    setTimeout(() => {
+      if( window.localStorage )
+      {
+        //check if reloaded once already 
+        if( !localStorage.getItem('firstLoad') )
+        {
+         //if not reloaded once, then set firstload to true
+          localStorage['firstLoad'] = true;
+          //reload the webpage using reload() method
+          window.location.reload();
+        }  
+        else 
+          localStorage.removeItem('firstLoad');
+    }}, 6000);
+
+
     const docRef = doc(db, "users/", res.uid);
     const docSnap = await getDoc(docRef);
 
