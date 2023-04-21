@@ -41,10 +41,10 @@ function showAlertSignup(message) {
       const newpost = container.insertBefore(div, posts);
       div.style.color = "green";
   
-      // setTimeout(() => {
-      //   newpost.remove();
-      //   location.replace("/Login.html");
-      // }, 2000);
+      setTimeout(() => {
+        newpost.remove();
+        location.replace("/Login.html");
+      }, 2000);
     }
   }
   

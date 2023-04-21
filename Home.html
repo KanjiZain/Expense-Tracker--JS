@@ -22,7 +22,8 @@
   </head>
 
   <body>
-    <div id="myDiv" style="display: block;">
+   <div id="loader"></div>
+    <div id="myDiv" style="display: none;">
       <h1 id="main-heading">Expense Tracker</h1>
       <div class="container-fluid">
         <div class="row">
@@ -227,9 +228,23 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
+    var myVar;
+  const myFunction = async function () {
+    myVar = setTimeout(showPage, 2000);
+
+  }
+
+    function showPage() {
+    document.getElementById("loader").style.display = "none";
+    document.getElementById("myDiv").style.display = "contents";
+  }
+
+
   addEventListener("DOMContentLoaded", async () => {
     const docRef = doc(db, "users/", useremail);
     const docSnap = await getDoc(docRef);
+
+    myFunction()
 
     if (docSnap.exists()) {
       const userdata = docSnap.data();
