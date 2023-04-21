@@ -22,8 +22,8 @@
   </head>
 
   <body>
-    <div id="loader"></div>
-    <div id="myDiv" style="display: none;">
+    <div id="myDiv" style="display: block;">
+      <h1 id="main-heading">Expense Tracker</h1>
       <div class="container-fluid">
         <div class="row">
           <!-- //left column -->
@@ -35,7 +35,7 @@
               </div>
               <input type="number" id="ammount-input" placeholder="Enter Ammount" min="0" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))" />
               <label for="bank-select"></label>
-              <select name="bank-select" id="bank-select"> </select>
+              <select name="bank-select" id="bank-select"></select>
               <input type="radio" id="expenseradio" name="division" value="Expense" />
               <h1 id="expensevalue" style="display: none;">00</h1>
               <button disabled id="expensebtn" value="expensebtn">
@@ -52,11 +52,17 @@
                 <strong><h4>Choose the Category</h4></strong>
               </div>
               <div id="expen-icon">
-                <button disabled><i class="fa-sharp fa-solid fa-house"></i></button>
-                <button disabled><i class="fa-solid fa-cart-shopping"></i></button>
+                <button disabled>
+                  <i class="fa-sharp fa-solid fa-house"></i>
+                </button>
+                <button disabled>
+                  <i class="fa-solid fa-cart-shopping"></i>
+                </button>
                 <button disabled><i class="fa-solid fa-gift"></i></button>
                 <button disabled><i class="fa-solid fa-utensils"></i></button>
-                <button disabled><i class="fa-solid fa-notes-medical"></i></button>
+                <button disabled>
+                  <i class="fa-solid fa-notes-medical"></i>
+                </button>
               </div>
               <div id="expen-selection">
                 <input type="radio" id="house" name="expandivision" value="housebtn" />
@@ -81,7 +87,9 @@
             <div class="container3-l">
               <div class="table-l">
                 <br />
-                <strong><h4 style="margin-left: 50px;">Transaction History</h4></strong>
+                <strong>
+                  <h4 style="margin-left: 50px;">Transaction History</h4>
+                </strong>
                 <div id="table1" class="scroll1">
                   <table style="background-color: white;"></table>
                 </div>
@@ -92,8 +100,12 @@
           <!-- right column -->
           <div class="col-lg-6 right">
             <div class="container1-r">
-              <div class="userbtn" id="userbtn">
-                <button><i class="fa-solid fa-user"></i></button>
+              <div class="nav" >
+                <div id="welcome">
+              
+               </div>
+                <button id="fa-user"><i class="fa-solid fa-user"></i></button>
+               
               </div>
               <br />
               <div>
@@ -121,12 +133,16 @@
             </div>
 
             <div class="add-bank">
-              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="@getbootstrap">Click to add Bank</button>
+              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="@getbootstrap">
+                Click to add Bank
+              </button>
               <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <h5 class="modal-title" id="exampleModalLabel">Add Bank</h5>
+                      <h5 class="modal-title" id="exampleModalLabel">
+                        Add Bank
+                      </h5>
                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -143,12 +159,14 @@
                     </div>
                     <div id="alert" class="alert"></div>
                     <div class="modal-footer">
-                      <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="submitbtn">Submit</button>
+                      <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="submitbtn">
+                        Submit
+                      </button>
                     </div>
                   </div>
                 </div>
               </div>
-              <select name="bank-select" id="bank-select1"> </select>
+              <select name="bank-select" id="bank-select1"></select>
             </div>
 
             <div class="container4-r">
@@ -195,70 +213,245 @@
     measurementId: "G-MGXQYBY2V4",
   };
 
-  let banks = [];
-  let banks1 = ["Cash", "Savings"];
-
-  let transactiondb = [];
-  let storageemail;
-  let storagepassword;
-  let storageuid;
-  let storagetransaction = [];
-  let storagearray = [];
-
-  let banknamearraydb = [
-    { BankName: "Cash", currentbank: 0, currentsaving: 0, currentcash: 0 },
-    { BankName: "Savings", currentbank: 0, currentsaving: 0, currentcash: 0 },
-  ];
-  let storagebanknamearray = [];
-
-  let storagecalculation = [];
-  let calculationadb = [];
-
+  let banksarr = ["Cash", "Savings"];
+  let transactionhistory = [];
+  let banknamearray = [];
+  let calculationarray = [];
   let othercalculation = { Expense: "", Income: "" };
-  let othercalculationstorage = [];
+  const useremail = localStorage.getItem("useremail");
+  let expensestorage;
+  let incomestorage;
 
   const app = initializeApp(firebaseConfig);
   const analytics = getAnalytics(app);
   const auth = getAuth(app);
   const db = getFirestore(app);
-  let res = JSON.parse(localStorage.getItem("userData"));
-  let userbankdata = JSON.parse(localStorage.getItem("userBanks"));
 
-  var myVar;
-  const myFunction = async function () {
-    myVar = setTimeout(showPage, 6000);
-
-    const docRef = doc(db, "users/", res.uid);
+  addEventListener("DOMContentLoaded", async () => {
+    const docRef = doc(db, "users/", useremail);
     const docSnap = await getDoc(docRef);
-    localStorage.setItem("userBanks", JSON.stringify(docSnap.data()));
-    userbankdata = JSON.parse(localStorage.getItem("userBanks"));
-    storageemail = userbankdata.email;
-    storagepassword = userbankdata.password;
-    storagearray = banks1;
-    storageuid = userbankdata.uid;
 
     if (docSnap.exists()) {
-      setDoc(docRef, {
-        uid: storageuid,
-        email: storageemail,
-        password: storagepassword,
-        banksarr: storagearray,
-        transactionhistory: storagetransaction,
-        banknamearray: banknamearraydb,
-        calculationarray: calculationadb,
-        othercalculations: othercalculation,
+      const userdata = docSnap.data();
+      console.log(userdata);
+      othercalculation = userdata.othercalculations;
+      banksarr = userdata.banksarr;
+      transactionhistory = userdata.transactionhistory;
+      banknamearray = userdata.banknamearray;
+      calculationarray = userdata.calculationarray;
+      expensestorage = userdata.othercalculations.Expense;
+      incomestorage = userdata.othercalculations.Income;
+      console.log(expensestorage, incomestorage);
+
+              document.getElementById('welcome').innerHTML = `<h4>Welcome ${userdata.name}</h4>`
+
+
+
+      let i = 0;
+      while (i < userdata.banksarr.length) {
+        let myTable1 = document.getElementById("table3");
+        const bankvalue = banksarr.length - 1;
+        const sel = document.getElementById("bank-select");
+        const opt = document.createElement("option");
+        const sel1 = document.getElementById("bank-select1");
+        const opt1 = document.createElement("option");
+
+        opt.text = banksarr[i];
+        sel.add(opt, sel.options[bankvalue]);
+        opt1.text = banksarr[i];
+        sel1.add(opt1, sel1.options[bankvalue]);
+
+        i++;
+      }
+      if (userdata.banknamearray.length > 2) {
+        let myTable = document.getElementById("table2");
+        let myTable1 = document.getElementById("table3");
+
+        let b = 2;
+        while (b < userdata.banknamearray.length) {
+          let row2 = document.createElement("tr");
+          let th = document.createElement("th");
+          let td = document.createElement("td");
+          th.innerHTML = `<th>${userdata.banknamearray[b].BankName}</th>`;
+          td.innerHTML = `<th>${userdata.banknamearray[b].currentbank}</th>`;
+          myTable1.appendChild(row2);
+          row2.appendChild(th);
+          row2.appendChild(td);
+          let table3bank = (myTable1.querySelector("#table3-bank").innerHTML = userdata.banknamearray[b].currentbank);
+
+          b++;
+        }
+      } else {
+      }
+
+      if (userdata.calculationarray.Balance === undefined) {
+        let myTable = document.getElementById("table2");
+      } else {
+        let myTable = document.getElementById("table2");
+        let balance = document.getElementById("balance");
+        balance.innerHTML = userdata.calculationarray.Balance;
+        let table2bank1 = (myTable.querySelector("#table2-bank").innerHTML = userdata.calculationarray.totalbank);
+        let table2cash1 = (myTable.querySelector("#table2-cash").innerHTML = userdata.calculationarray.totalcash);
+        let table2saving1 = (myTable.querySelector("#table2-saving").innerHTML = userdata.calculationarray.totalsaving);
+      }
+    }
+
+
+      let a = 0;
+        while (a < transactionhistory.length) {
+          let myTable1 = document.getElementById("table3");
+
+          let table3cash = (myTable1.querySelector("#table3-cash").innerHTML = calculationarray.totalcash);
+          let table3saving = (myTable1.querySelector("#table3-saving").innerHTML = calculationarray.totalsaving);
+          const table = document.getElementById("table1");
+          let row2 = document.createElement("tr");
+          let th1 = document.createElement("th");
+          let td1 = document.createElement("td");
+          let td2 = document.createElement("td");
+          let td3 = document.createElement("td");
+
+          if (transactionhistory[a].type === "Income") {
+            th1.innerHTML = `<th>${transactionhistory[a].type}</th>`;
+            td1.innerHTML = `<th>${transactionhistory[a].BankName}</th>`;
+            td2.innerHTML = `<th>${transactionhistory[a].Date}</th>`;
+            td3.innerHTML = `<th>-$${transactionhistory[a].Ammount}</th>`;
+            td3.style.color = "green";
+            table.appendChild(row2);
+            row2.appendChild(th1);
+            row2.appendChild(td1);
+            row2.appendChild(td2);
+            row2.appendChild(td3);
+          } else {
+            th1.innerHTML = `<th>${transactionhistory[a].type}</th>`;
+            td1.innerHTML = `<th>${transactionhistory[a].BankName}</th>`;
+            td2.innerHTML = `<th>${transactionhistory[a].Date}</th>`;
+            td3.innerHTML = `<th>-$${transactionhistory[a].Ammount}</th>`;
+            td3.style.color = "red";
+
+            table.appendChild(row2);
+            row2.appendChild(th1);
+            row2.appendChild(td1);
+            row2.appendChild(td2);
+            row2.appendChild(td3);
+          }
+
+          a++;
+        }
+        
+
+    var data = [
+      { x: "Income", value: othercalculation.Income },
+      { x: "Expense", value: othercalculation.Expense },
+    ];
+    const element = document.getElementById("container-chart");
+    let var3 = `<div id="container-chart"></div>`;
+    element.innerHTML = var3;
+    var chart = anychart.pie(data);
+    chart.innerRadius("75%");
+    var labels = chart.labels();
+    labels.position("outside");
+    labels.fontColor("#000000");
+    chart.overlapMode(true);
+    chart.insideLabelsOffset("-75%");
+    chart.legend(false);
+    chart.container("container-chart");
+    chart.background().fill("#F3F3F3 ");
+
+    chart.draw();
+
+    console.log(banknamearray);
+    
+
+
+  });
+
+  submitbtn.addEventListener("click", async () => {
+    let bankname = document.getElementById("bank-name").value;
+    let ammount = parseInt(document.getElementById("ammount").value);
+
+    let myTable = document.getElementById("table2");
+    let table2cash = parseInt(myTable.querySelector("#table2-cash").innerText);
+    let table2saving = parseInt(myTable.querySelector("#table2-saving").innerHTML);
+    let table2bank = parseInt(myTable.querySelector("#table2-bank").innerHTML);
+
+    let myTable1 = document.getElementById("table3");
+
+    let count = 0;
+    if (bankname === "" || ammount === "") {
+      window.alert("Please fill all the feilds");
+    } else {
+      banksarr.forEach(function (item, index) {
+        if (item === bankname) {
+          count = count + 1;
+        }
       });
 
-      let userbankdata = JSON.parse(localStorage.getItem("userBanks"));
+      if (count > 0) {
+        window.alert("The bank is already added!");
+      } else {
+        banksarr.push(bankname);
+        const bankvalue = banksarr.length - 1;
+        const sel = document.getElementById("bank-select");
+        const opt = document.createElement("option");
+        const sel1 = document.getElementById("bank-select1");
+        const opt1 = document.createElement("option");
+        opt.text = bankname;
+        sel.add(opt, sel.options[bankvalue]);
+        opt1.text = bankname;
+        sel1.add(opt1, sel1.options[bankvalue]);
+
+        const table = document.getElementById("table3");
+        let row2 = document.createElement("tr");
+        let th = document.createElement("th");
+        let td = document.createElement("td");
+        th.innerHTML = `<th>${bankname}</th>`;
+        td.innerHTML = `<th>${ammount}</th>`;
+
+        table.appendChild(row2);
+        row2.appendChild(th);
+        row2.appendChild(td);
+
+        let totalbank = ammount + table2bank;
+        let newbalance = table2cash + totalbank;
+        Number(balance);
+        balance.innerHTML = `<h2>${newbalance}</h2>`;
+        let table2bank1 = (myTable.querySelector("#table2-bank").innerHTML = totalbank);
+
+        banknamearray.push({
+          BankName: bankname,
+          currentbank: ammount,
+        });
+
+        calculationarray = {
+          totalbank: table2bank1,
+          totalsaving: table2saving,
+          totalcash: table2cash,
+          Balance: newbalance,
+        };
+
+        const docRef = doc(db, "users/", useremail);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          console.log(docSnap.data());
+
+          const data = {
+            banksarr: banksarr,
+            banknamearray: banknamearray,
+            calculationarray: calculationarray,
+          };
+
+          updateDoc(docRef, data).then(() => {
+            console.log("Document has been added successfully");
+          });
+        }
+        console.log(banksarr);
+      }
     }
-  };
+  });
 
-  function showPage() {
-    document.getElementById("loader").style.display = "none";
-    document.getElementById("myDiv").style.display = "block";
-  }
-
-  document.getElementById("userbtn").addEventListener("click", function () {
+      
+      document.getElementById("fa-user").addEventListener("click", function () {
     if (confirm("Are you sure you want to logout?") == true) {
       const auth = getAuth();
       signOut(auth)
@@ -272,410 +465,49 @@
     }
   });
 
-  addEventListener("DOMContentLoaded", async () => {
-    myFunction();
-
-    setTimeout(() => {
-      if( window.localStorage )
-      {
-        //check if reloaded once already 
-        if( !localStorage.getItem('firstLoad') )
-        {
-         //if not reloaded once, then set firstload to true
-          localStorage['firstLoad'] = true;
-          //reload the webpage using reload() method
-          window.location.reload();
-        }  
-        else 
-          localStorage.removeItem('firstLoad');
-    }}, 6000);
-
-
-    const docRef = doc(db, "users/", res.uid);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      let userbankdata = JSON.parse(localStorage.getItem("userBanks"));
-
-      let myVar1 = setTimeout(bankload, 6000);
-      let myVar2 = setTimeout(historyload, 6000);
-      storageemail = userbankdata.email;
-      storagepassword = userbankdata.password;
-      storageuid = userbankdata.uid;
-      storagearray = userbankdata.banksarr;
-      storagetransaction = userbankdata.transactionhistory;
-      banknamearraydb = userbankdata.banknamearray;
-      calculationadb = userbankdata.calculationarray;
-      storagebanknamearray = userbankdata.banknamearray;
-      othercalculationstorage = userbankdata.othercalculations;
-      transactiondb = storagetransaction;
-
-      setDoc(docRef, {
-        uid: storageuid,
-        email: storageemail,
-        password: storagepassword,
-        banksarr: storagearray,
-        transactionhistory: storagetransaction,
-        banknamearray: banknamearraydb,
-        calculationarray: calculationadb,
-        othercalculations: othercalculationstorage,
-      });
-      userbankdata = JSON.parse(localStorage.getItem("userBanks"));
-
-      function bankload() {
-        if (userbankdata.banknamearray.length > 2) {
-          let myTable = document.getElementById("table2");
-          let myTable1 = document.getElementById("table3");
-
-          let b = 2;
-          while (b < userbankdata.banknamearray.length) {
-            let row2 = document.createElement("tr");
-            let th = document.createElement("th");
-            let td = document.createElement("td");
-            th.innerHTML = `<th>${userbankdata.banknamearray[b].BankName}</th>`;
-            td.innerHTML = `<th>${userbankdata.banknamearray[b].currentbank}</th>`;
-            myTable1.appendChild(row2);
-            row2.appendChild(th);
-            row2.appendChild(td);
-            let table3bank = (myTable1.querySelector("#table3-bank").innerHTML = userbankdata.banknamearray[b].currentbank);
-
-            b++;
-          }
-        } else {
-        }
-      }
-      function historyload() {
-        let i = 0;
-        while (i < userbankdata.banksarr.length) {
-          let myTable1 = document.getElementById("table3");
-
-          let bankname = userbankdata.banksarr[i];
-          let bankname1 = userbankdata.banksarr[i];
-          const bankvalue = banks.length - 1;
-          const bankvalue1 = banks1.length - 1;
-          const sel = document.getElementById("bank-select");
-          const opt = document.createElement("option");
-          const sel1 = document.getElementById("bank-select1");
-          const opt1 = document.createElement("option");
-
-          opt.text = bankname;
-          sel.add(opt, sel.options[bankvalue]);
-          opt1.text = bankname1;
-          sel1.add(opt1, sel1.options[bankvalue1]);
-
-          i++;
-        }
-        let arr = [2, 3, 5, 7];
-        let a = 0;
-        while (a < userbankdata.transactionhistory.length) {
-          let myTable1 = document.getElementById("table3");
-
-          let table3cash = (myTable1.querySelector("#table3-cash").innerHTML = userbankdata.calculationarray.totalcash);
-          let table3saving = (myTable1.querySelector("#table3-saving").innerHTML = userbankdata.calculationarray.totalsaving);
-          const table = document.getElementById("table1");
-          let row2 = document.createElement("tr");
-          let th1 = document.createElement("th");
-          let td1 = document.createElement("td");
-          let td2 = document.createElement("td");
-          let td3 = document.createElement("td");
-
-          if (userbankdata.transactionhistory[a].type === "Income") {
-            th1.innerHTML = `<th>${userbankdata.transactionhistory[a].type}</th>`;
-            td1.innerHTML = `<th>${userbankdata.transactionhistory[a].BankName}</th>`;
-            td2.innerHTML = `<th>${userbankdata.transactionhistory[a].Date}</th>`;
-            td3.innerHTML = `<th>-$${userbankdata.transactionhistory[a].Ammount}</th>`;
-            td3.style.color = "green";
-            table.appendChild(row2);
-            row2.appendChild(th1);
-            row2.appendChild(td1);
-            row2.appendChild(td2);
-            row2.appendChild(td3);
-          } else {
-            th1.innerHTML = `<th>${userbankdata.transactionhistory[a].type}</th>`;
-            td1.innerHTML = `<th>${userbankdata.transactionhistory[a].BankName}</th>`;
-            td2.innerHTML = `<th>${userbankdata.transactionhistory[a].Date}</th>`;
-            td3.innerHTML = `<th>-$${userbankdata.transactionhistory[a].Ammount}</th>`;
-            td3.style.color = "red";
-
-            table.appendChild(row2);
-            row2.appendChild(th1);
-            row2.appendChild(td1);
-            row2.appendChild(td2);
-            row2.appendChild(td3);
-          }
-
-          a++;
-        }
-
-        if (userbankdata.calculationarray.Balance === undefined) {
-          let myTable = document.getElementById("table2");
-        } else {
-          let myTable = document.getElementById("table2");
-          let balance = document.getElementById("balance");
-          balance.innerHTML = userbankdata.calculationarray.Balance;
-          let table2bank1 = (myTable.querySelector("#table2-bank").innerHTML = userbankdata.calculationarray.totalbank);
-          let table2cash1 = (myTable.querySelector("#table2-cash").innerHTML = userbankdata.calculationarray.totalcash);
-          let table2saving1 = (myTable.querySelector("#table2-saving").innerHTML = userbankdata.calculationarray.totalsaving);
-        }
-      }
-
-      let pievalue1 = userbankdata.othercalculations.Expense;
-      let pievalue2 = userbankdata.othercalculations.Income;
-
-      if (pievalue1 == 0 || pievalue2 == 0) {
-      } else {
-        var data = [
-          { x: "Income", value: pievalue2 },
-          { x: "Expense", value: pievalue1 },
-        ];
-        const element = document.getElementById("container-chart");
-        let var3 = `<div id="container-chart"></div>`;
-        element.innerHTML = var3;
-        var chart = anychart.pie(data);
-        chart.innerRadius("75%");
-        var labels = chart.labels();
-        labels.position("outside");
-        labels.fontColor("#000000");
-        chart.overlapMode(true);
-        chart.insideLabelsOffset("-75%");
-        chart.legend(false);
-        chart.container("container-chart");
-        chart.background().fill("#F3F3F3 ");
-
-        chart.draw();
-      }
-    }
-  });
-
-  let a = 0;
-  submitbtn.addEventListener("click", async () => {
-    userbankdata = JSON.parse(localStorage.getItem("userBanks"));
-    banks = userbankdata.banksarr;
-    banks1 = userbankdata.banksarr;
-
-    let bankname = document.getElementById("bank-name").value;
-    let ammount = parseInt(document.getElementById("ammount").value);
-    let count = 0;
-    banks1.forEach(function (item, index) {
-      if (item === bankname) {
-        count = count + 1;
-      }
-    });
-
-    if (count > 0) {
-      window.alert("The bank is already added!");
-    } else {
-      banks.push(bankname);
-      banks1.push(bankname);
-      const bankvalue = banks1.length - 1;
-      const sel = document.getElementById("bank-select");
-      const opt = document.createElement("option");
-      const sel1 = document.getElementById("bank-select1");
-      const opt1 = document.createElement("option");
-      opt.text = bankname;
-      sel.add(opt, sel.options[bankvalue]);
-      opt1.text = bankname;
-      sel1.add(opt1, sel1.options[bankvalue]);
-      storagearray.push(banks1[bankvalue]);
-      userbankdata.banksarr.push(banks1[bankvalue]);
-
-      const table = document.getElementById("table3");
-      let row2 = document.createElement("tr");
-      let th = document.createElement("th");
-      let td = document.createElement("td");
-      th.innerHTML = `<th>${bankname}</th>`;
-      td.innerHTML = `<th>${ammount}</th>`;
-
-      table.appendChild(row2);
-      row2.appendChild(th);
-      row2.appendChild(td);
-
-      userbankdata = localStorage.setItem("userBanks", JSON.stringify(userbankdata));
-
-      const docRef = doc(db, "users/", res.uid);
-      const docSnap = await getDoc(docRef);
-
-      userbankdata = JSON.parse(localStorage.getItem("userBanks"));
-
-      if (docSnap.exists()) {
-        updateDoc(docRef, {
-          uid: storageuid,
-          email: storageemail,
-          password: storagepassword,
-          banksarr: storagearray,
-          transactionhistory: transactiondb,
-          banknamearray: storagebanknamearray,
-          calculationarray: calculationadb,
-          othercalculations: othercalculation,
-        });
-      }
-      addbank();
-    }
-  });
-
-  const addbank = async function () {
-    let bankname = document.getElementById("bank-name").value;
-    let ammount = parseInt(document.getElementById("ammount").value);
-
-    let balance = document.getElementById("balance");
-    var select = document.getElementById("bank-select");
-    var value = select.options[select.selectedIndex].value;
-
-    let myTable = document.getElementById("table2");
-    let myTable1 = document.getElementById("table3");
-
-    let table2cash = parseInt(myTable.querySelector("#table2-cash").innerText);
-    let table3cash = myTable1.querySelector("#table3-cash").innerText;
-
-    let table2saving = parseInt(myTable.querySelector("#table2-saving").innerHTML);
-    let table3saving = myTable1.querySelector("#table3-saving").innerHTML;
-    let table2bank = parseInt(myTable.querySelector("#table2-bank").innerHTML);
-
-    let table3bank = myTable1.querySelector("#table3-bank").innerHTML;
-
-    let totalbank = ammount + table2bank;
-    let newbalance = table2cash + totalbank;
-    Number(balance);
-    balance.innerHTML = `<h2>${newbalance}</h2>`;
-    let table2bank1 = (myTable.querySelector("#table2-bank").innerHTML = totalbank);
-    userbankdata = JSON.parse(localStorage.getItem("userBanks"));
-    calculationadb = userbankdata.calculationarray;
-
-    storagecalculation = { totalbank: table2bank1, totalsaving: table2saving, totalcash: table2cash, Balance: newbalance };
-    calculationadb = storagecalculation;
-    userbankdata.calculationarray = calculationadb;
-    userbankdata = localStorage.setItem("userBanks", JSON.stringify(userbankdata));
-    userbankdata = JSON.parse(localStorage.getItem("userBanks"));
-
-    if (bankname === "" || ammount === "") {
-      window.alert("Please fill all the feilds");
-    } else {
-      const docRef = doc(db, "users/", res.uid);
-      const docSnap = await getDoc(docRef);
-      userbankdata = JSON.parse(localStorage.getItem("userBanks"));
-      userbankdata.banknamearray = storagebanknamearray;
-      storagebanknamearray.push({ BankName: bankname, currentbank: ammount, currentsaving: table2saving, currentcash: table2cash });
-      banknamearraydb = storagebanknamearray;
-      userbankdata = localStorage.setItem("userBanks", JSON.stringify(userbankdata));
-      userbankdata = JSON.parse(localStorage.getItem("userBanks"));
-
-      if (docSnap.exists()) {
-        updateDoc(docRef, {
-          uid: storageuid,
-          email: storageemail,
-          password: storagepassword,
-          banksarr: storagearray,
-          transactionhistory: transactiondb,
-          banknamearray: storagebanknamearray,
-          calculationarray: calculationadb,
-          othercalculations: othercalculation,
-        });
-      }
-    }
-  };
-
   document.getElementById("expen-add").addEventListener("click", async function addexpen() {
     const ammountin = document.getElementById("ammount-input");
-    const expenseradio = document.getElementById("expenseradio");
-    const house = document.getElementById("house");
-    const gift = document.getElementById("gift");
-    const dinner = document.getElementById("dinner");
-    const medical = document.getElementById("medical");
-    const shopping = document.getElementById("shopping");
-    var select = document.getElementById("bank-select");
-    let balance = document.getElementById("balance").innerText;
-    var value = select.options[select.selectedIndex].value;
-    let date = new Date();
-    let currentDate = date.toString();
     let ammountdb = parseInt(ammountin.value);
-    const table = document.getElementById("table1");
-    let row2 = document.createElement("tr");
-    let th1 = document.createElement("th");
-    let td1 = document.createElement("td");
-    let td2 = document.createElement("td");
-    let td3 = document.createElement("td");
-    const select1 = document.getElementById("bank-select");
-    const select0 = document.getElementById("bank-select1");
-
-    let selected = select1.options[select1.selectedIndex].text;
-    let selected1 = select1.selectedIndex;
-
-    let myTable = document.getElementById("table2");
-    let myTable1 = document.getElementById("table3");
-    let table2cash1 = parseInt(myTable.querySelector("#table2-cash").innerText);
-    let table2bank1 = parseInt(myTable.querySelector("#table2-bank").innerText);
-    let table3cash = parseInt(myTable1.querySelector("#table3-cash").innerText);
-    let table3saving = parseInt(myTable1.querySelector("#table3-saving").innerText);
-    let table3bank = parseInt(myTable1.querySelector("#table3-bank").innerText);
-    let table2saving = parseInt(myTable.querySelector("#table2-saving").innerText);
-    let table2bank = parseInt(myTable.querySelector("#table2-bank").innerText);
+    let select = document.getElementById("bank-select");
+    const expenseradio = document.getElementById("expenseradio");
     let expensehtml = parseInt(document.getElementById("expensevalue").innerText);
     let incomehtml = parseInt(document.getElementById("incomevalue").innerText);
-    let table2cash = Number(myTable.querySelector("#table2-cash").innerText);
-    let balance5 = document.getElementById("balance");
 
-    let incomehtml2 = parseInt(document.getElementById("incomevalue").innerText);
-    let expensehtml2 = parseInt(document.getElementById("expensevalue").innerText);
+    console.log(expensestorage, incomestorage);
 
-    let userbankdata = JSON.parse(localStorage.getItem("userBanks"));
     const divisonradio = document.querySelector('input[name="division"]:checked');
     const expenradio = document.querySelector('input[name="expandivision"]:checked');
+    var value = select.options[select.selectedIndex].value;
+    let selected = select.options[select.selectedIndex].text;
+    let selected1 = select.selectedIndex;
+
+    let myTable = document.getElementById("table2");
+    let table2cash = Number(myTable.querySelector("#table2-cash").innerText);
+    let table2saving = parseInt(myTable.querySelector("#table2-saving").innerText);
+    let table2bank = parseInt(myTable.querySelector("#table2-bank").innerText);
+
+    let myTable1 = document.getElementById("table3");
+
+    let totalbalance = document.getElementById("balance");
+    let date = new Date();
+    let currentDate = date.toString();
 
     if (ammountin.value.length == 0 || divisonradio == null || expenradio == null || value == undefined) {
       window.alert("Please select all the feilds");
     } else {
       if (expenseradio.checked === true) {
-        let userbankdata = JSON.parse(localStorage.getItem("userBanks"));
-
-        const docRef = doc(db, "users/", res.uid);
-        const docSnap = await getDoc(docRef);
-
-        userbankdata = localStorage.setItem("userBanks", JSON.stringify(userbankdata));
-        userbankdata = JSON.parse(localStorage.getItem("userBanks"));
-        if (docSnap.exists()) {
-          updateDoc(docRef, {
-            uid: storageuid,
-            email: storageemail,
-            password: storagepassword,
-            banksarr: storagearray,
-            transactionhistory: transactiondb,
-            banknamearray: storagebanknamearray,
-            calculationarray: calculationadb,
-            othercalculations: othercalculation,
-          });
-        }
-        userbankdata = JSON.parse(localStorage.getItem("userBanks"));
-        let expensestorage = userbankdata.othercalculations.Expense;
-        let incomestorage = userbankdata.othercalculations.Income;
-        console.log(userbankdata.othercalculations.Expense);
-
-        function othercalculation1() {
-          if (userbankdata.othercalculations.Expense == 0) {
+        function expensevalidation() {
+          if (expensestorage == 0) {
             let totalexpense = ammountdb + expensehtml;
             let expensehtml3 = (document.getElementById("expensevalue").innerHTML = `<h2>${totalexpense}</h2>`);
-            userbankdata.othercalculations.Expense = totalexpense;
-            console.log(userbankdata.othercalculations.Expense);
-            userbankdata = localStorage.setItem("userBanks", JSON.stringify(userbankdata));
-            userbankdata = JSON.parse(localStorage.getItem("userBanks"));
-
+            console.log(totalexpense);
+            othercalculation.Expense = totalexpense;
           } else {
             let totalexpense = ammountdb + expensestorage;
             let expensehtml3 = (document.getElementById("expensevalue").innerHTML = `<h2>${totalexpense}</h2>`);
-            userbankdata.othercalculations.Expense = totalexpense;
-            console.log(userbankdata.othercalculations.Expense);
-            userbankdata = localStorage.setItem("userBanks", JSON.stringify(userbankdata));
-            userbankdata = JSON.parse(localStorage.getItem("userBanks"));
-
+            othercalculation.Expense = totalexpense;
           }
-          othercalculation = userbankdata.othercalculations;
-          console.log(userbankdata.othercalculations.Expense);
-
-          userbankdata = localStorage.setItem("userBanks", JSON.stringify(userbankdata));
-          userbankdata = JSON.parse(localStorage.getItem("userBanks"));
         }
-
-        console.log(userbankdata.othercalculations.Expense);
-        userbankdata = JSON.parse(localStorage.getItem("userBanks"));
 
         if (selected === "Cash") {
           let totalcash = table2cash - ammountdb;
@@ -684,81 +516,67 @@
           if (table3cashupdate < 0) {
             window.alert("The input ammount is more than the cash!");
           } else {
-            balance5.innerHTML = `<h2>${newbalance}</h2>`;
+            totalbalance.innerHTML = `<h2>${newbalance}</h2>`;
             let table2cash1 = parseInt((myTable.querySelector("#table2-cash").innerHTML = totalcash));
             let table3cash1 = (myTable1.querySelector("#table3-cash").innerHTML = totalcash);
-            console.log(storagecalculation , userbankdata.calculationarray)
 
-            storagecalculation = { totalbank: table2bank1, totalsaving: table2saving, totalcash: totalcash, Balance: newbalance };
-            storagebanknamearray = userbankdata.banknamearray;
+            banknamearray[0].currentcash = totalcash;
 
-            userbankdata.banknamearray[0] = { BankName: "Cash", currentbank: table2bank, currentsaving: table2saving, currentcash: table3cashupdate };
-            calculationadb = storagecalculation
-            userbankdata.calculationarray = storagecalculation
-            userbankdata = localStorage.setItem("userBanks", JSON.stringify(userbankdata));
-            userbankdata = JSON.parse(localStorage.getItem("userBanks"));
+            calculationarray = {
+              Balance: newbalance,
+              totalbank: table2bank,
+              totalsaving: table2saving,
+              totalcash: table2cash1,
+            };
 
-            othercalculation1();
+            expensevalidation();
             transactioncall();
           }
         } else if (selected === "Savings") {
           let totalsaving = table2saving - ammountdb;
           let newbalance = Number(table2bank) + Number(totalsaving) + Number(table2cash);
           let table3savingupdate = table2saving - ammountdb;
-          console.log(storagecalculation )
-          console.log(userbankdata.calculationarray)
-
           if (table3savingupdate < 0) {
-            window.alert("The input ammount is more than the savings!");
+            window.alert("The input ammount is more than the cash!");
           } else {
-            balance5.innerHTML = `<h2>${newbalance}</h2>`;
+            totalbalance.innerHTML = `<h2>${newbalance}</h2>`;
             let table2saving1 = parseInt((myTable.querySelector("#table2-saving").innerHTML = totalsaving));
             let table3saving = (myTable1.querySelector("#table3-saving").innerHTML = table3savingupdate);
 
-            storagecalculation = { totalbank: table2bank1, totalsaving: totalsaving, totalcash: table2cash, Balance: newbalance };
-            userbankdata.banknamearray[1] = { BankName: "Savings", currentbank: table2bank, currentsaving: table3savingupdate, currentcash: table2cash };
-            storagebanknamearray = userbankdata.banknamearray;
-            console.log(userbankdata.calculationarray)
-            console.log(storagecalculation )
+            banknamearray[1].currentsaving = totalsaving;
+            calculationarray = {
+              Balance: newbalance,
+              totalbank: table2bank,
+              totalsaving: totalsaving,
+              totalcash: table2cash,
+            };
 
-            userbankdata.calculationarray = storagecalculation
-
-            calculationadb = storagecalculation;
-            
-            userbankdata = localStorage.setItem("userBanks", JSON.stringify(userbankdata));
-            userbankdata = JSON.parse(localStorage.getItem("userBanks"));
-            console.log(totalsaving)
-            console.log(storagecalculation )
-            console.log(userbankdata.calculationarray)
-            othercalculation1();
+            expensevalidation();
             transactioncall();
           }
         } else {
-          let myTable1 = document.getElementById("table3");
+          console.log(selected);
+          let table4 = document.getElementById("table3");
           let var1 = selected1;
-          let var2 = userbankdata.banknamearray[var1].currentbank;
+          let var2 = banknamearray[var1].currentbank;
           Number(var1);
-          let totalbank = table2bank1 - ammountdb;
+          let totalbank = table2bank - ammountdb;
           let newbalance = totalbank + table2cash + Number(table2saving);
           let table3bankupdate = var2 - ammountdb;
+
+          banknamearray[var1].currentbank = table3bankupdate;
+          calculationarray = {
+            Balance: newbalance,
+            totalbank: totalbank,
+            totalsaving: table2saving,
+            totalcash: table2cash,
+          };
+
           if (table3bankupdate < 0) {
             window.alert("The input ammount is more than the selected bank!");
           } else {
-            balance5.innerHTML = `<h2>${newbalance}</h2>`;
+            totalbalance.innerHTML = `<h2>${newbalance}</h2>`;
             let table2bank1 = (myTable.querySelector("#table2-bank").innerHTML = totalbank);
-            console.log(userbankdata.calculationarray)
-            console.log(storagecalculation )
-
-            var table4 = document.getElementById("table3");
-            storagecalculation = { totalbank: table2bank1, totalsaving: table2saving, totalcash: table2cash, Balance: newbalance };
-            userbankdata.banknamearray[var1] = { BankName: selected, currentbank: table3bankupdate, currentsaving: table2saving, currentcash: table2cash };
-            storagebanknamearray = userbankdata.banknamearray;
-            calculationadb = storagecalculation;
-            userbankdata.calculationarray = storagecalculation
-
-            console.log(userbankdata.calculationarray)
-            console.log(storagecalculation )
-            
 
             var x = document.getElementById("table3").rows.length - 1;
 
@@ -768,42 +586,52 @@
               c = c + 1;
             }
             let b = 2;
-            while (b < userbankdata.banknamearray.length) {
+            while (b < banknamearray.length) {
               let row1 = document.createElement("tr");
               let th = document.createElement("th");
               let td = document.createElement("td");
-              th.innerHTML = `<th>${userbankdata.banknamearray[b].BankName}</th>`;
-              td.innerHTML = `<th>${userbankdata.banknamearray[b].currentbank}</th>`;
+              console.log(banknamearray);
+              th.innerHTML = `<th>${banknamearray[b].BankName}</th>`;
+              td.innerHTML = `<th>${banknamearray[b].currentbank}</th>`;
               table4.appendChild(row1);
               row1.appendChild(th);
               row1.appendChild(td);
 
               b++;
             }
-            console.log(storagecalculation )
-            console.log(userbankdata.calculationarray)
-            userbankdata = localStorage.setItem("userBanks", JSON.stringify(userbankdata));
-            userbankdata = JSON.parse(localStorage.getItem("userBanks"));
-            othercalculation1();
+            expensevalidation();
             transactioncall();
           }
-          console.log(userbankdata.othercalculations.Expense);
-
-          ///////////////////////////////////////////////
         }
+        const docRef = doc(db, "users/", useremail);
+        const docSnap = await getDoc(docRef);
 
-        userbankdata = JSON.parse(localStorage.getItem("userBanks"));
+        if (docSnap.exists()) {
+          console.log(docSnap.data());
 
-        calculationadb = storagecalculation;
+          const data = {
+            banknamearray: banknamearray,
+            othercalculations: othercalculation,
+            calculationarray: calculationarray,
+            transactionhistory: transactionhistory,
+          };
 
+          updateDoc(docRef, data).then(() => {
+            console.log("Document has been added successfully");
+          });
+        }
         function transactioncall() {
-          console.log(userbankdata.othercalculations.Expense);
-
+          const table = document.getElementById("table1");
+          let row2 = document.createElement("tr");
+          let th1 = document.createElement("th");
+          let td1 = document.createElement("td");
+          let td2 = document.createElement("td");
+          let td3 = document.createElement("td");
           if (house.checked === true) {
             th1.innerHTML = `<th>House</th>`;
             td1.innerHTML = `<th>${value}</th>`;
             td2.innerHTML = `<th>${currentDate}</th>`;
-            td3.innerHTML = `<th>-$${ammountin.value}</th>`;
+            td3.innerHTML = `<th>-$${ammountdb}</th>`;
             td3.style.color = "red";
             table.appendChild(row2);
             row2.appendChild(th1);
@@ -811,12 +639,12 @@
             row2.appendChild(td2);
             row2.appendChild(td3);
 
-            transactiondb.push({ BankName: value, Date: currentDate, Ammount: ammountdb, type: "Home" });
+            transactionhistory.push({ BankName: value, Date: currentDate, Ammount: ammountdb, type: "Home" });
           } else if (gift.checked === true) {
             th1.innerHTML = `<th>Gift</th>`;
             td1.innerHTML = `<th>${value}</th>`;
             td2.innerHTML = `<th>${currentDate}</th>`;
-            td3.innerHTML = `<th>-$${ammountin.value}</th>`;
+            td3.innerHTML = `<th>-$${ammountdb}</th>`;
             td3.style.color = "red";
             table.appendChild(row2);
             row2.appendChild(th1);
@@ -824,12 +652,12 @@
             row2.appendChild(td2);
             row2.appendChild(td3);
 
-            transactiondb.push({ BankName: value, Date: currentDate, Ammount: ammountdb, type: "Gift" });
+            transactionhistory.push({ BankName: value, Date: currentDate, Ammount: ammountdb, type: "Gift" });
           } else if (dinner.checked === true) {
             th1.innerHTML = `<th>Dinner</th>`;
             td1.innerHTML = `<th>${value}</th>`;
             td2.innerHTML = `<th>${currentDate}</th>`;
-            td3.innerHTML = `<th>-$${ammountin.value}</th>`;
+            td3.innerHTML = `<th>-$${ammountdb}</th>`;
             td3.style.color = "red";
             table.appendChild(row2);
             row2.appendChild(th1);
@@ -837,12 +665,12 @@
             row2.appendChild(td2);
             row2.appendChild(td3);
 
-            transactiondb.push({ BankName: value, Date: currentDate, Ammount: ammountdb, type: "Dinner" });
+            transactionhistory.push({ BankName: value, Date: currentDate, Ammount: ammountdb, type: "Dinner" });
           } else if (medical.checked === true) {
             th1.innerHTML = `<th>Medical</th>`;
             td1.innerHTML = `<th>${value}</th>`;
             td2.innerHTML = `<th>${currentDate}</th>`;
-            td3.innerHTML = `<th>-${ammountin.value}$</th>`;
+            td3.innerHTML = `<th>-${ammountdb}$</th>`;
             td3.style.color = "red";
             table.appendChild(row2);
             row2.appendChild(th1);
@@ -850,12 +678,12 @@
             row2.appendChild(td2);
             row2.appendChild(td3);
 
-            transactiondb.push({ BankName: value, Date: currentDate, Ammount: ammountdb, type: "Medical" });
+            transactionhistory.push({ BankName: value, Date: currentDate, Ammount: ammountdb, type: "Medical" });
           } else {
             th1.innerHTML = `<th>Shopping</th>`;
             td1.innerHTML = `<th>${value}</th>`;
             td2.innerHTML = `<th>${currentDate}</th>`;
-            td3.innerHTML = `<th>-${ammountin.value}$</th>`;
+            td3.innerHTML = `<th>-${ammountdb}$</th>`;
             td3.style.color = "red";
             table.appendChild(row2);
             row2.appendChild(th1);
@@ -863,105 +691,80 @@
             row2.appendChild(td2);
             row2.appendChild(td3);
 
-            transactiondb.push({ BankName: value, Date: currentDate, Ammount: ammountdb, type: "Shopping" });
+            transactionhistory.push({ BankName: value, Date: currentDate, Ammount: ammountdb, type: "Shopping" });
           }
-          userbankdata.transactionhistory = transactiondb;
-          console.log(userbankdata.othercalculations.Expense);
-          userbankdata.calculationarray = storagecalculation
-          userbankdata = localStorage.setItem("userBanks", JSON.stringify(userbankdata));
-
-          userbankdata = JSON.parse(localStorage.getItem("userBanks"));
         }
       } else {
-        const docRef = doc(db, "users/", res.uid);
-        const docSnap = await getDoc(docRef);
-        let userbankdata = JSON.parse(localStorage.getItem("userBanks"));
-
-        if (docSnap.exists()) {
-          updateDoc(docRef, {
-            uid: storageuid,
-            email: storageemail,
-            password: storagepassword,
-            banksarr: storagearray,
-            transactionhistory: transactiondb,
-            banknamearray: storagebanknamearray,
-            calculationarray: calculationadb,
-            othercalculations: othercalculation,
-          });
+        function incomevalidation() {
+          if (incomestorage == 0) {
+            let totalincome = ammountdb + incomehtml;
+            let incomehtml3 = (document.getElementById("incomevalue").innerHTML = `<h2>${totalincome}</h2>`);
+            console.log(totalincome);
+            othercalculation.Income = totalincome;
+          } else {
+            let totalincome = ammountdb + incomestorage;
+            let incomehtml3 = (document.getElementById("incomevalue").innerHTML = `<h2>${totalincome}</h2>`);
+            othercalculation.Income = totalincome;
+          }
         }
 
-        let table2cash4 = table2cash1 + ammountdb;
-        let table2bank4 = table2bank1 + ammountdb;
-        let balance4 = Number(balance) + ammountdb;
-        console.log(userbankdata.othercalculations.Expense);
-
-        let expensestorage = userbankdata.othercalculations.Expense;
-        let incomestorage = userbankdata.othercalculations.Income;
-        console.log(userbankdata.othercalculations.Expense);
-
-        if (userbankdata.othercalculations.Income == 0) {
-          let totalincome = ammountdb + incomehtml;
-          let incomehtml3 = (document.getElementById("incomevalue").innerHTML = `<h2>${totalincome}</h2>`);
-          userbankdata.othercalculations.Income = totalincome;
-          othercalculation = userbankdata.othercalculations;
-          console.log(userbankdata.othercalculations.Expense);
-        } else {
-          let totalincome = ammountdb + incomestorage;
-          let incomehtml3 = (document.getElementById("incomevalue").innerHTML = `<h2>${totalincome}</h2>`);
-          userbankdata.othercalculations.Income = totalincome;
-          othercalculation = userbankdata.othercalculations;
-          console.log(userbankdata.othercalculations.Expense);
-        }
         if (selected === "Cash") {
           let totalcash = table2cash + ammountdb;
           let newbalance = parseInt(table2bank) + totalcash + Number(table2saving);
           let table3cashupdate = table2cash + ammountdb;
-          balance5.innerHTML = `<h2>${newbalance}</h2>`;
+          totalbalance.innerHTML = `<h2>${newbalance}</h2>`;
           let table2cash1 = parseInt((myTable.querySelector("#table2-cash").innerHTML = totalcash));
           let table3cash1 = (myTable1.querySelector("#table3-cash").innerHTML = totalcash);
 
-          storagecalculation = { totalbank: table2bank1, totalsaving: table2saving, totalcash: totalcash, Balance: newbalance };
-          storagebanknamearray = userbankdata.banknamearray;
+          banknamearray[0].currentcash = totalcash;
 
-          userbankdata.banknamearray[0] = { BankName: "Cash", currentbank: table2bank, currentsaving: table2saving, currentcash: table3cashupdate };
-          calculationadb = storagecalculation;
-          userbankdata.calculationarray = storagecalculation
+          calculationarray = {
+            Balance: newbalance,
+            totalbank: table2bank,
+            totalsaving: table2saving,
+            totalcash: table2cash1,
+          };
 
-          userbankdata = localStorage.setItem("userBanks", JSON.stringify(userbankdata));
-          userbankdata = JSON.parse(localStorage.getItem("userBanks"));
+          incomevalidation();
+          transactioncall();
         } else if (selected === "Savings") {
           let totalsaving = table2saving + ammountdb;
           let newbalance = Number(table2bank) + Number(totalsaving) + Number(table2cash);
           let table3savingupdate = table2saving + ammountdb;
-          balance5.innerHTML = `<h2>${newbalance}</h2>`;
+          totalbalance.innerHTML = `<h2>${newbalance}</h2>`;
           let table2saving1 = parseInt((myTable.querySelector("#table2-saving").innerHTML = totalsaving));
           let table3saving = (myTable1.querySelector("#table3-saving").innerHTML = table3savingupdate);
 
-          storagecalculation = { totalbank: table2bank1, totalsaving: totalsaving, totalcash: table2cash, Balance: newbalance };
-          userbankdata.banknamearray[1] = { BankName: "Savings", currentbank: table2bank, currentsaving: table3savingupdate, currentcash: table2cash };
-          storagebanknamearray = userbankdata.banknamearray;
-          userbankdata.calculationarray = storagecalculation
+          banknamearray[1].currentsaving = totalsaving;
+          calculationarray = {
+            Balance: newbalance,
+            totalbank: table2bank,
+            totalsaving: totalsaving,
+            totalcash: table2cash,
+          };
 
-          calculationadb = storagecalculation;
-          userbankdata = localStorage.setItem("userBanks", JSON.stringify(userbankdata));
-          userbankdata = JSON.parse(localStorage.getItem("userBanks"));
+          incomevalidation();
+          transactioncall();
         } else {
+          console.log(selected);
           let myTable1 = document.getElementById("table3");
           let var1 = selected1;
-          let var2 = userbankdata.banknamearray[var1].currentbank;
+          let var2 = banknamearray[var1].currentbank;
           Number(var1);
           let totalbank = table2bank + ammountdb;
           let newbalance = totalbank + table2cash + Number(table2saving);
           let table3bankupdate = var2 + ammountdb;
-          balance5.innerHTML = `<h2>${newbalance}</h2>`;
+          totalbalance.innerHTML = `<h2>${newbalance}</h2>`;
           let table2bank1 = (myTable.querySelector("#table2-bank").innerHTML = totalbank);
 
-          var table4 = document.getElementById("table3");
-          storagecalculation = { totalbank: table2bank1, totalsaving: table2saving, totalcash: table2cash, Balance: newbalance };
-          userbankdata.banknamearray[var1] = { BankName: selected, currentbank: table3bankupdate, currentsaving: table2saving, currentcash: table2cash };
-          storagebanknamearray = userbankdata.banknamearray;
-          calculationadb = storagecalculation;
-          userbankdata.calculationarray = storagecalculation
+          banknamearray[var1].currentbank = table3bankupdate;
+          calculationarray = {
+            Balance: newbalance,
+            totalbank: totalbank,
+            totalsaving: table2saving,
+            totalcash: table2cash,
+          };
+          let table4 = document.getElementById("table3");
 
           var x = document.getElementById("table3").rows.length - 1;
 
@@ -971,23 +774,31 @@
             c = c + 1;
           }
           let b = 2;
-          while (b < userbankdata.banknamearray.length) {
+          while (b < banknamearray.length) {
             let row1 = document.createElement("tr");
             let th = document.createElement("th");
             let td = document.createElement("td");
-            th.innerHTML = `<th>${userbankdata.banknamearray[b].BankName}</th>`;
-            td.innerHTML = `<th>${userbankdata.banknamearray[b].currentbank}</th>`;
+            console.log(banknamearray);
+            th.innerHTML = `<th>${banknamearray[b].BankName}</th>`;
+            td.innerHTML = `<th>${banknamearray[b].currentbank}</th>`;
             table4.appendChild(row1);
             row1.appendChild(th);
             row1.appendChild(td);
 
             b++;
           }
-          userbankdata = localStorage.setItem("userBanks", JSON.stringify(userbankdata));
-          userbankdata = JSON.parse(localStorage.getItem("userBanks"));
+          incomevalidation();
+          transactioncall();
         }
-
-        th1.innerHTML = `<th>Income</th>`;
+        function transactioncall() {
+          const table = document.getElementById("table1");
+          let row2 = document.createElement("tr");
+          let th1 = document.createElement("th");
+          let td1 = document.createElement("td");
+          let td2 = document.createElement("td");
+          let td3 = document.createElement("td");
+     
+            th1.innerHTML = `<th>Income</th>`;
         td1.innerHTML = `<th>${value}</th>`;
         td2.innerHTML = `<th>${currentDate}</th>`;
         td3.innerHTML = `<th>$${ammountin.value}</th>`;
@@ -998,69 +809,52 @@
         row2.appendChild(td2);
         row2.appendChild(td3);
 
-        transactiondb.push({ BankName: value, Date: currentDate, Ammount: ammountdb, type: "Income" });
+       transactionhistory.push({ BankName: value, Date: currentDate, Ammount: ammountdb, type: "Income" });
+      
+          
+        }
       }
-      console.log(userbankdata.othercalculations.Expense);
+      const docRef = doc(db, "users/", useremail);
+      const docSnap = await getDoc(docRef);
 
-      userbankdata.transactionhistory = transactiondb;
-      userbankdata.banknamearray = storagebanknamearray;
-      userbankdata.othercalculations.Expense = expensehtml2;
-      userbankdata.calculationarray = storagecalculation
+      if (docSnap.exists()) {
+        console.log(docSnap.data());
 
-      userbankdata = JSON.parse(localStorage.getItem("userBanks"));
-      console.log(userbankdata.othercalculations.Expense);
+        const data = {
+          banknamearray: banknamearray,
+          othercalculations: othercalculation,
+          calculationarray: calculationarray,
+          transactionhistory:transactionhistory
+        };
+
+        updateDoc(docRef, data).then(() => {
+          console.log("Document has been added successfully");
+        });
+      }
     }
 
-    userbankdata = JSON.parse(localStorage.getItem("userBanks"));
 
-    incomehtml2 = parseInt(document.getElementById("incomevalue").innerText);
-    expensehtml2 = parseInt(document.getElementById("expensevalue").innerText);
-    userbankdata = JSON.parse(localStorage.getItem("userBanks"));
-    let pievalue1 = userbankdata.othercalculations.Expense;
-    let pievalue2 = userbankdata.othercalculations.Income;
 
-    if (pievalue1 == 0 || pievalue2 == 0) {
-    } else {
-      var data = [
-        { x: "Income", value: pievalue2 },
-        { x: "Expense", value: pievalue1 },
-      ];
-      const element = document.getElementById("container-chart");
-      let var3 = `<div id="container-chart"></div>`;
-      element.innerHTML = var3;
-      var chart = anychart.pie(data);
-      chart.innerRadius("75%");
-      var labels = chart.labels();
-      labels.position("outside");
-      labels.fontColor("#000000");
-      chart.overlapMode(true);
-      chart.insideLabelsOffset("-75%");
-      chart.legend(false);
-      chart.container("container-chart");
-      chart.background().fill("#F3F3F3 ");
 
-      chart.draw();
-    }
+    var data = [
+      { x: "Income", value: othercalculation.Income },
+      { x: "Expense", value: othercalculation.Expense },
+    ];
+    const element = document.getElementById("container-chart");
+    let var3 = `<div id="container-chart"></div>`;
+    element.innerHTML = var3;
+    var chart = anychart.pie(data);
+    chart.innerRadius("75%");
+    var labels = chart.labels();
+    labels.position("outside");
+    labels.fontColor("#000000");
+    chart.overlapMode(true);
+    chart.insideLabelsOffset("-75%");
+    chart.legend(false);
+    chart.container("container-chart");
+    chart.background().fill("#F3F3F3 ");
 
-    userbankdata = JSON.parse(localStorage.getItem("userBanks"));
+    chart.draw();
 
-    const docRef = doc(db, "users/", res.uid);
-    const docSnap = await getDoc(docRef);
-
-    userbankdata = localStorage.setItem("userBanks", JSON.stringify(userbankdata));
-    userbankdata = JSON.parse(localStorage.getItem("userBanks"));
-
-    if (docSnap.exists()) {
-      updateDoc(docRef, {
-        uid: storageuid,
-        email: storageemail,
-        password: storagepassword,
-        banksarr: storagearray,
-        transactionhistory: transactiondb,
-        banknamearray: storagebanknamearray,
-        calculationarray: calculationadb,
-        othercalculations: othercalculation,
-      });
-    }
   });
 </script>

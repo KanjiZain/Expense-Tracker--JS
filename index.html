@@ -1,132 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Signup</title>
-    <link rel="stylesheet" href="index.css">
-    <link rel="shortcut icon" type="image/jpg" href="https://cdn.iconscout.com/icon/premium/png-256-thumb/expense-tracker-app-4203120-3509061.png"/>
+    <link rel="stylesheet" href="index.css" />
+    <link
+      rel="shortcut icon"
+      type="image/jpg"
+      href="https://cdn.iconscout.com/icon/premium/png-256-thumb/expense-tracker-app-4203120-3509061.png"
+    />
     <script src="app.js"></script>
+  </head>
+  <body>
+    <div class="signup">
+      <div class="signup-connect">
+        <div id="signup-title">Signup</div>
+      </div>
+      <div class="signup-classic">
+        <div id="form-title">Welcome</div>
+        <form class="form">
+          <fieldset class="name">
+            <input type="name" placeholder="Name" name="Name" id="Namei" />
+          </fieldset>
+          <fieldset class="email">
+            <input type="email" placeholder="Email" name="Email" id="Emaili" />
+          </fieldset>
+          <fieldset class="password">
+            <input
+              type="password"
+              placeholder="Password"
+              name="Password"
+              id="Passwordi"
+            />
+          </fieldset>
+        </form>
 
-</head>
-<body>
-<div class="signup">
-  <div class="signup-connect">
-    <div id="signup-title">Signup</div>
-  </div>
-  <div class="signup-classic">
-    <div id="form-title">Welcome</div>
-    <form class="form">
-      <fieldset class="name">
-        <input type="name" placeholder="Name" name="Name" id="Namei" />
-      </fieldset>
-      <fieldset class="email">
-        <input type="email" placeholder="Email" name="Email" id="Emaili" />
-      </fieldset>
-      <fieldset class="password">
-        <input type="password" placeholder="Password" name="Password" id="Passwordi" />
-      </fieldset>
-      </form>
-      
-      <button type="submit" class="btn" id="sign">SignUp</button>
-      <br>
-      <div class="alert" id="alert"></div>
-      <hr>
-      <span>Already Registerd? <a href="Login.html"><u>Login Now</u></a></span>
-  </div>
-</div>
+        <button type="submit" class="btn" id="sign">SignUp</button>
+        <br />
+        <div class="alert" id="alert"></div>
+        <hr />
+        <span
+          >Already Registerd? <a href="Login.html"><u>Login Now</u></a></span
+        >
+      </div>
+    </div>
 
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-analytics.js";
+      import {
+        getAuth,
+        createUserWithEmailAndPassword,
+        signInWithEmailAndPassword,
+      } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
+      import {
+        getFirestore,
+        addDoc,
+        collection,
+        doc,
+        getDoc,
+        query,
+        where,
+        getDocs,
+        setDoc,
+      } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-analytics.js";
-  import { getAuth, createUserWithEmailAndPassword,signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
-  import { getFirestore,addDoc, collection,doc,getDoc, query, where, getDocs,setDoc } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
+      function create_UUID() {
+        var dt = new Date().getTime();
+        var uuid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+          /[xy]/g,
+          function (c) {
+            var r = (dt + Math.random() * 16) % 16 | 0;
+            dt = Math.floor(dt / 16);
+            return (c == "x" ? r : (r & 0x3) | 0x8).toString(16);
+          }
+        );
+        return uuid;
+      }
 
-  function create_UUID(){
-    var dt = new Date().getTime();
-    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = (dt + Math.random()*16)%16 | 0;
-        dt = Math.floor(dt/16);
-        return (c=='x' ? r :(r&0x3|0x8)).toString(16);
-    });
-    return uuid;
-}
+      let banksarr = ["Cash", "Savings"];
+      let transactionhistory = [];
+      let banknamearray = [
+        { BankName: "Cash", currentcash: 0 },
+        {
+          BankName: "Savings",
 
+          currentsaving: 0,
 
+        },
+      ];
+      let calculationarray = [];
+      let othercalculation = { Expense: 0, Income: 0 };
 
+      const firebaseConfig = {
+        apiKey: "AIzaSyAo0FGzNytdWQ0RRq6eUeogVHDO2ejByS8",
+        authDomain: "egpro-9bb13.firebaseapp.com",
+        projectId: "egpro-9bb13",
+        storageBucket: "egpro-9bb13.appspot.com",
+        messagingSenderId: "330781414809",
+        appId: "1:330781414809:web:47e8d1ab035a04e2e5af08",
+        measurementId: "G-MGXQYBY2V4",
+      };
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAo0FGzNytdWQ0RRq6eUeogVHDO2ejByS8",
-    authDomain: "egpro-9bb13.firebaseapp.com",
-    projectId: "egpro-9bb13",
-    storageBucket: "egpro-9bb13.appspot.com",
-    messagingSenderId: "330781414809",
-    appId: "1:330781414809:web:47e8d1ab035a04e2e5af08",
-    measurementId: "G-MGXQYBY2V4"
-  };
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
 
+      const createuser = function (user, email, password, name) {
+        const docRef = doc(db, "users", user.email);
 
+        const data = {
+          uid: user.uid,
+          email: email,
+          password: password,
+          name: name,
+          banknamearray: banknamearray,
+          banksarr: banksarr,
+          calculationarray: calculationarray,
+          othercalculations: othercalculation,
+          transactionhistory: transactionhistory,
+        };
 
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-  const auth = getAuth(app)
-  const db = getFirestore(app);
+        setDoc(docRef, data).then(() => {
+          console.log("Document has been added successfully");
+        });
+      };
 
-  
+      document.getElementById("sign").addEventListener("click", async () => {
+        const email = document.getElementById("Emaili").value;
+        const password = document.getElementById("Passwordi").value;
+        const name = document.getElementById("Namei").value;
 
-const createuser = function (user,email,password){
-  const docRef = doc(db, "users", user.uid );
+        if (email === "" || password === "" || name === "") {
+          showAlertSignup("Please fill in all fields");
+        } else {
+          createUserWithEmailAndPassword(auth, email, password, name)
+            .then((userCredential) => {
+              const user = userCredential.user;
+              showAlertSignup("Account Created Successfully");
 
-  const data = { uid:user.uid,
-    email:email,
-    password:password }
-  
-  setDoc(docRef, data) .then(() => { console.log("Document has been added successfully"); })
-}
+              createuser(user, email, password, name);
 
-   document.getElementById('sign').addEventListener('click',async () => {
-          
-            const email = document.getElementById('Emaili').value
-            const password = document.getElementById('Passwordi').value
-            const name = document.getElementById('Namei').value
-
-            if(email === '' || password==='' || name==='') {
-              showAlertSignup('Please fill in all fields');
-            
-            }
-
-            else {
-              createUserWithEmailAndPassword(auth, email, password,name)
-              .then((userCredential) => {
-                const user = userCredential.user;
-                showAlertSignup('Account Created Successfully');
-
-
-                createuser(user,email,password)
-                
-               
-
-              setTimeout(function() {
-                document.getElementById('Emaili').value = ''
-                document.getElementById('Passwordi').value = ''
-                document.getElementById('Namei').value = ''
-            }, 2000);
-           
-              
+              setTimeout(function () {
+                document.getElementById("Emaili").value = "";
+                document.getElementById("Passwordi").value = "";
+                document.getElementById("Namei").value = "";
+              }, 2000);
             })
             .catch((error) => {
-              const errorCode = error.code;  
+              const errorCode = error.code;
               const errorMessage = error.message;
               showAlertSignup(errorMessage);
-              console.log(errorMessage)
+              console.log(errorMessage);
             });
-            }
-        })
-      
-
-</script>
-
-</body>
+        }
+      });
+    </script>
+  </body>
 </html>
